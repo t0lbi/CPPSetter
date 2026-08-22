@@ -2,3 +2,4 @@ problems/
 __pycache__/
 *.pyc
 .env
+temp/
