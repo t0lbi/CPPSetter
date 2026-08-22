@@ -1,0 +1,13 @@
+{
+	"title": "kk",
+	"description": "Description",
+	"input": "Input Format",
+	"output": "Output Format",
+	"solution": "Solution explanation (optional)",
+	"constraints": "Constraints",
+	"time_limit": 2.0,
+	"memory_limit": 256.0,
+	"grader": false,
+	"checker": false,
+	"subtasks": []
+}

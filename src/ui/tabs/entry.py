@@ -89,6 +89,8 @@ class EntryTab:
 
     def import_problem(self):
         path = filedialog.askdirectory()
+        if not path:
+            return
         load_problem(path)
         self.main.current_problem_name = path.split("/")[-1]
         self.main.update_nav()
