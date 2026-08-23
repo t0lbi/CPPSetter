@@ -1,5 +1,5 @@
 import tkinter as tk
-from src.core import *
+from src.core import write_metadata
 import time
 from threading import Timer
 
@@ -34,6 +34,16 @@ class ProblemTab:
             "Memory Limit (MB):"
         ]
         heights = [1,4,3,3,4,3,1,1]
+        default_texts = [
+            "New Problem", 
+            "Enter the problem description here...", 
+            "Standard input...", 
+            "Standard output...", 
+            "", 
+            r"1 \le N \le 500", 
+            "2.0", 
+            "256"
+        ]
         def on_text_change(*args):
             if hasattr(self, '_timer'): 
                 self._timer.cancel()
@@ -70,6 +80,7 @@ class ProblemTab:
                     fg="#ffffff"
                 )
             )
+            areas[i].insert("1.0", default_texts[i])
             labels[i].pack(pady=(3, 6),anchor="w",padx=3)
             areas[i].pack(fill="x", padx=6, pady=(0, 10))
             areas[i].bind("<KeyRelease>", on_text_change)

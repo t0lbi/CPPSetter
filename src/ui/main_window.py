@@ -10,7 +10,7 @@ class MainWindow:
 		self.root = root
 		self.current_problem_name = None
 		self.root.title("CPP Setter")
-		self.root.geometry("1300x840")
+		self.root.geometry("1400x960")
 		self.root.config(bg="#2b2b2b")
 		self.build_layout()
 		self.init_views()

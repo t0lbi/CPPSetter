@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog
-from src.core.manager import *
+from src.core import create_problem, valid_to_create, load_problem
+
 class EntryTab:
     def __init__(self, parent, main):
         self.main = main
