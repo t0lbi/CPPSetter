@@ -53,7 +53,6 @@ class EntryTab:
         popup.title("New Problem")
         popup.geometry("280x130")
         popup.resizable(False, False)
-        popup.grab_set()
 
         text = tk.Label(popup, text="Problem Name:", bg="#aaaaaa")
         text.pack()

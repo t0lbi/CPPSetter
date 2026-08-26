@@ -149,7 +149,7 @@ class BruteTab:
         for i in range(len(columns)):
             tree.heading(columns[i], text=headings[i])
             tree.column(columns[i], width=len(headings[i])*15+5, anchor="center", stretch=False)
-        tree.pack(pady=20)
+        tree.pack(padx=20, pady=20, fill="both", expand=True)
         error_area = tk.Label(self.runner_frame,font=("Arial", 11), bg="#111111",fg="#ff0000",text="Errors will be shown here.", anchor="nw")
         error_area.pack(padx=20, pady=20, fill="both", expand=True)
 
