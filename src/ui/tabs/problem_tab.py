@@ -1,5 +1,5 @@
 import tkinter as tk
-from src.core import write_metadata
+from src.core import write_metadata, read_metadata
 import time
 from threading import Timer
 
@@ -34,15 +34,15 @@ class ProblemTab:
             "Memory Limit (MB):"
         ]
         heights = [1,4,3,3,4,3,1,1]
-        default_texts = [
-            "New Problem", 
-            "Enter the problem description here...", 
-            "Standard input...", 
-            "Standard output...", 
-            "", 
-            r"1 \le N \le 500", 
-            "2.0", 
-            "256"
+        json_name = [
+            "title", 
+            "description", 
+            "input", 
+            "output", 
+            "solution", 
+            "constraints", 
+            "time_limit", 
+            "memory_limit"
         ]
         def on_text_change(*args):
             if hasattr(self, '_timer'): 
@@ -51,14 +51,14 @@ class ProblemTab:
             self._timer.start()
         def update():
             write_metadata({
-                "title": areas[0].get("1.0","end")[:-1],
-                "description": areas[1].get("1.0","end")[:-1],
-                "input": areas[2].get("1.0","end")[:-1],
-                "output": areas[3].get("1.0","end")[:-1],
-                "solution": areas[4].get("1.0","end")[:-1],
-                "constraints": areas[5].get("1.0","end")[:-1],
-                "time_limit": areas[6].get("1.0","end")[:-1],
-                "memory_limit": areas[7].get("1.0","end")[:-1],
+                json_name[0]: areas[0].get("1.0","end")[:-1],
+                json_name[1]: areas[1].get("1.0","end")[:-1],
+                json_name[2]: areas[2].get("1.0","end")[:-1],
+                json_name[3]: areas[3].get("1.0","end")[:-1],
+                json_name[4]: areas[4].get("1.0","end")[:-1],
+                json_name[5]: areas[5].get("1.0","end")[:-1],
+                json_name[6]: areas[6].get("1.0","end")[:-1],
+                json_name[7]: areas[7].get("1.0","end")[:-1],
             })
         for i in range(8):
             labels.append(
@@ -80,7 +80,10 @@ class ProblemTab:
                     fg="#ffffff"
                 )
             )
-            areas[i].insert("1.0", default_texts[i])
+            json_data = read_metadata()
+            areas[i].insert("1.0", json_data[json_name[i]])
             labels[i].pack(pady=(3, 6),anchor="w",padx=3)
             areas[i].pack(fill="x", padx=6, pady=(0, 10))
             areas[i].bind("<KeyRelease>", on_text_change)
+    def update_ui(self):
+        print("Pwoblem Dab")

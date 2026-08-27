@@ -37,3 +37,5 @@ class ExporterTab:
 
     def yap(*args):
         print("hicbir ise yaramiyorum :(")
+    def update_ui(self):
+        print("Expowdew Dab")

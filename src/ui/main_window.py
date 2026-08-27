@@ -143,6 +143,7 @@ class MainWindow:
 		if view_name != "Entry" and not self.can_save():
 			return
 		view_obj = self.views[view_name]
+		view_obj.update_ui()
 		view_obj.frame.tkraise()
 		title = f"CPP Setter - {view_name}"
 		if self.current_problem_name:

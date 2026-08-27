@@ -72,7 +72,7 @@ int main(int argc, char* argv[]) {
 
 def read_metadata():
 	if not os.path.isfile(META_PATH):
-		return {}
+		return default_metadata("New Problem")
 	with open(META_PATH, "r", encoding="utf-8") as file:
 		return json.load(file)
 

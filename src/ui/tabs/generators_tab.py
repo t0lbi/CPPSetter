@@ -84,3 +84,5 @@ class GeneratorsTab:
             button["state"] = "normal" if self.grader_var.get() else "disabled"
     def yap(*args):
         print("hicbir ise yaramiyorum :(")
+    def update_ui(self):
+        print("Genewadow Dab")

@@ -152,7 +152,6 @@ class BruteTab:
         tree.pack(padx=20, pady=20, fill="both", expand=True)
         error_area = tk.Label(self.runner_frame,font=("Arial", 11), bg="#111111",fg="#ff0000",text="Errors will be shown here.", anchor="nw")
         error_area.pack(padx=20, pady=20, fill="both", expand=True)
-
     def update_buttons(self, *args):
         for button in self.checker_buttons:
             button["state"] = "normal" if self.checker_var.get() else "disabled"
@@ -160,3 +159,5 @@ class BruteTab:
             button["state"] = "normal" if self.grader_var.get() else "disabled"
     def yap(*args):
         print("hicbir ise yaramiyorum :(")
+    def update_ui(self):
+        print("Bwute tab")
