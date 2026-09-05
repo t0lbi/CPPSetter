@@ -1,0 +1,13 @@
+{
+	"constraints": "Additional constraint",
+	"data": [
+		{
+			"generator": "arg",
+			"tests": [
+				"1 1",
+				"1 2",
+				"1 3"
+			]
+		}
+	]
+}

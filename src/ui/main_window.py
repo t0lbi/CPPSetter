@@ -50,17 +50,6 @@ class MainWindow:
 		)
 		self.save_btn.pack(side="bottom")
 
-		self.deneme_btn = tk.Button(
-			self.nav_frame,
-			text="UU",
-			width=15,
-			bg="#3c3f41",
-			fg="#ffffff",
-			command=lambda: self.set_current_problem("probname"),
-		)
-		self.deneme_btn.pack(side="bottom")
-
-
 
 		self.container = tk.Frame(self.root)
 		self.container.pack(side="right", fill="both", expand=True)

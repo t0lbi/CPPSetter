@@ -3,12 +3,13 @@ import json
 import os
 import shutil
 import subprocess
-from .runner import compile_code, run_gen, run_exec, score
+from .runner import compile_code, run_gen, run_exec, score, get_last_compile_error
 
 EDITOR = str(os.getenv("EDITOR","gedit"))
 PROBLEM_DIR = "temp/problem-data/"
 GEN_DIR = PROBLEM_DIR + "generators/"
 SOL_DIR = PROBLEM_DIR + "solutions/"
+SUBMISSIONS_DIR = PROBLEM_DIR + "submissions/"
 META_PATH = PROBLEM_DIR + "metadata.json"
 GRADER_PATH = PROBLEM_DIR + "grader.cpp"
 CHECKER_PATH = PROBLEM_DIR + "checker.cpp"
@@ -189,7 +190,8 @@ def compile_checker_executable(meta):
 	if error or path == "none":
 		return path, error
 	if compile_code(path, "none", "-static", "temp/checker") != 1:
-		return None, "Checker compilation failed (CE)."
+		err = get_last_compile_error()
+		return None, err if err else "Checker compilation failed (CE)."
 	return "temp/checker", None
 
 def import_main_solution(source_path):
@@ -206,7 +208,8 @@ def run_bf_generator(args):
 	if not os.path.isfile(BF_GENERATOR_PATH):
 		return {"ok": False, "message": "Generator file not found.", "output": None}
 	if compile_code(BF_GENERATOR_PATH, "none", "", "temp/bf_generator") != 1:
-		return {"ok": False, "message": "Compilation error (CE).", "output": None}
+		err = get_last_compile_error()
+		return {"ok": False, "message": err if err else "Compilation error (CE).", "output": None}
 	output_path = "temp/bf_gen.out"
 	if run_gen("temp/bf_generator", args, output_path) != 1:
 		return {"ok": False, "message": "Runtime error (RE).", "output": output_path}
@@ -222,7 +225,8 @@ def run_bf_solution(input_path):
 	if not os.path.isfile(BF_SOLUTION_PATH):
 		return {"ok": False, "message": "Brute force solution file not found.", "output": None}
 	if compile_code(BF_SOLUTION_PATH, grader_cpp, "", "temp/bf_solution") != 1:
-		return {"ok": False, "message": "Compilation error (CE).", "output": None}
+		err = get_last_compile_error()
+		return {"ok": False, "message": err if err else "Compilation error (CE).", "output": None}
 	if not os.path.isfile(input_path):
 		return {"ok": False, "message": "Input not found: "+input_path, "output": None}
 	output_path = "temp/bf_sol.out"
@@ -239,7 +243,8 @@ def compile_generator_grader_checker(meta):
 		if compile_code(BF_GENERATOR_PATH, "none", "", "temp/bf_generator") == 1:
 			result["generator"] = "OK"
 		else:
-			result["generator"] = "Compilation Error (CE)."
+			err = get_last_compile_error()
+			result["generator"] = err if err else "Compilation Error (CE)."
 			ok = False
 	else:
 		result["generator"] = "skipped"
@@ -262,7 +267,8 @@ def compile_generator_grader_checker(meta):
 			if compile_code(BF_SOLUTION_PATH, grader_cpp, "", "temp/bf_solution") == 1:
 				result["bf"] = "OK"
 			else:
-				result["bf"] = "Compilation error (CE)."
+				err = get_last_compile_error()
+				result["bf"] = err if err else "Compilation error (CE)."
 				ok = False
 	else:
 		result["bf"] = "skipped"
@@ -293,7 +299,8 @@ def verify_solution_compiles():
 			if compile_code(FULL_SOLUTION_PATH, grader_cpp, "", "temp/main_solution") == 1:
 				result["main"] = "OK"
 			else:
-				result["main"] = "Compilation error (CE)."
+				err = get_last_compile_error()
+				result["main"] = err if err else "Compilation error (CE)."
 				ok = False
 	else:
 		result["main"] = "File not found."
@@ -412,11 +419,14 @@ def create_input_pack(subtask_dir):
 	os.makedirs(subtask_dir + "/input", exist_ok=True)
 	test = 1
 	for pack in data["data"]:
-		if compile_code(GEN_DIR + pack["generator"] + ".cpp", "none", "", "temp/" + pack["generator"]) != 1:
+		exe_path = "temp/gen_" + pack["generator"]
+		if os.path.isdir(exe_path):
+			shutil.rmtree(exe_path)
+		if compile_code(GEN_DIR + pack["generator"] + ".cpp", "none", "", exe_path) != 1:
 			return 0
 		for flag in pack["tests"]:
 			out_path = subtask_dir + "/input/" + str(test) + ".in"
-			if run_gen("temp/" + pack["generator"], flag, out_path) != 1:
+			if run_gen(exe_path, flag, out_path) != 1:
 				print(f"Error on test {test}! generator: {pack['generator']}.cpp, args: {flag}\n")
 				return 0
 			test += 1
@@ -428,8 +438,11 @@ def create_output_pack(subtask_dir):
 		shutil.rmtree(subtask_dir + "/output")
 	os.makedirs(subtask_dir + "/output", exist_ok=True)
 	file_count = len(os.listdir(subtask_dir + "/input"))
+	results = []
 	for i in range(file_count):
-		run_exec("temp/main_solution", f"{subtask_dir}/input/{i+1}.in", f"{subtask_dir}/output/{i+1}.out")
+		res = run_exec("temp/main_solution", f"{subtask_dir}/input/{i+1}.in", f"{subtask_dir}/output/{i+1}.out")
+		results.append(res)
+	return results
 
 
 def default_metadata(title):
@@ -455,8 +468,11 @@ def valid_to_create(problemname):
 	return 1
 
 def create_problem(problemname):
+	if os.path.exists(PROBLEM_DIR):
+		shutil.rmtree(PROBLEM_DIR)
 	os.makedirs(GEN_DIR, exist_ok=True)
 	os.makedirs(SOL_DIR, exist_ok=True)
+	os.makedirs(SUBMISSIONS_DIR, exist_ok=True)
 	write_metadata(default_metadata(problemname))
 	write_if_missing(PROBLEM_DIR+"grader.cpp", _GRADER_STUB)
 	write_if_missing(PROBLEM_DIR+"checker.cpp", _CHECKER_STUB)
@@ -470,6 +486,7 @@ def load_problem(problem_path):
 		return 0
 	os.makedirs(problem_path+"/generators", exist_ok=True)
 	os.makedirs(problem_path+"/solutions", exist_ok=True)
+	os.makedirs(problem_path+"/submissions", exist_ok=True)
 
 	template = default_metadata(os.path.basename(problem_path))
 	meta_path = problem_path+"/metadata.json"
@@ -489,6 +506,7 @@ def load_problem(problem_path):
 
 	if os.path.exists(PROBLEM_DIR):
 		shutil.rmtree(PROBLEM_DIR)
+	os.makedirs("temp", exist_ok=True)
 	subprocess.run(["cp", "-fr", problem_path, PROBLEM_DIR.rstrip("/")])
 	return 1
 
@@ -572,12 +590,10 @@ def save_subtask_metadata(subtask_name, constraints, data):
 
 
 def rename_subtask(old_name, new_name):
-	old_clean, error = validate_generator_name(old_name)
-	if error:
-		return error
-	new_clean, error = validate_generator_name(new_name)
-	if error:
-		return error
+	if not old_name or not str(old_name).strip() or not new_name or not str(new_name).strip():
+		return "Subtask name cannot be empty."
+	old_clean = str(old_name).strip()
+	new_clean = str(new_name).strip()
 	if old_clean == new_clean:
 		return None
 	old_path = PROBLEM_DIR+old_clean
@@ -600,9 +616,9 @@ def rename_subtask(old_name, new_name):
 
 
 def remove_subtask(subtask_name):
-	clean, error = validate_generator_name(subtask_name)
-	if error:
-		return error
+	if not subtask_name or not str(subtask_name).strip():
+		return "Subtask name cannot be empty."
+	clean = str(subtask_name).strip()
 	subtask_path = PROBLEM_DIR+clean
 	if os.path.isdir(subtask_path):
 		shutil.rmtree(subtask_path)
@@ -618,10 +634,13 @@ def remove_subtask(subtask_name):
 
 
 def create_subtask(subtaskname):
+	if not subtaskname or not str(subtaskname).strip():
+		return 0
+	subtaskname = str(subtaskname).strip()
 	subtask_path = PROBLEM_DIR+subtaskname
 	if os.path.exists(subtask_path):
 		return 0
-	os.makedirs(subtask_path)
+	os.makedirs(subtask_path, exist_ok=True)
 	with open(subtask_path+"/metadata.json", "w", encoding="utf-8") as file:
 		json.dump({"constraints": "Additional constraint", "data": []}, file, indent="\t")
 		file.write("\n")

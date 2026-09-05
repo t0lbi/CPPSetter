@@ -95,4 +95,4 @@ class EntryTab:
         self.main.current_problem_name = path.split("/")[-1]
         self.main.update_nav()
     def update_ui(self):
-        print("Entry tab")
+        pass

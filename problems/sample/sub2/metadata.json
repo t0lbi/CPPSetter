@@ -1,0 +1,24 @@
+{
+	"constraints": "Additional constraint",
+	"data": [
+		{
+			"generator": "a_le_b",
+			"tests": [
+				""
+			]
+		},
+		{
+			"generator": "bf",
+			"tests": [
+				"",
+				""
+			]
+		},
+		{
+			"generator": "arg",
+			"tests": [
+				"1 7"
+			]
+		}
+	]
+}

@@ -4,8 +4,15 @@ import psutil
 import os
 
 MAX_RUNTIME = int(os.getenv("MAX_RUNTIME",10))
+MAX_RUNTIME_SECONDS = MAX_RUNTIME
+LAST_COMPILE_ERROR = ""
+
+def get_last_compile_error():
+	return LAST_COMPILE_ERROR
 
 def compile_code(solution, grader, flag, out):
+	global LAST_COMPILE_ERROR
+	LAST_COMPILE_ERROR = ""
 	if grader == "none":
 		command = ["g++", solution, flag, "-o", out]
 	else:
@@ -20,8 +27,7 @@ def compile_code(solution, grader, flag, out):
 		)
 		return 1
 	except subprocess.CalledProcessError as e:
-		print("Compilation failed!")
-		print("Compiler Output:\n", e.stderr)
+		LAST_COMPILE_ERROR = e.stderr
 		return 0
 
 def run_exec(solution, program_input, program_output):
@@ -117,7 +123,7 @@ def score(program_input, program_output1, program_output2, checker):
 		return 0.0
 
 	if checker == "none":
-		if result.stdout == "":
+		if result.returncode == 0:
 			return 1.0
 		return 0.0
 

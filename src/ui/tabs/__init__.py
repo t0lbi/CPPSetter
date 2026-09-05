@@ -7,3 +7,5 @@ from .subtask_tab import *
 from .io_tab import *
 from .judger_tab import *
 from .exporter_tab import *
+from src.ui.llm_api_tab import *
+from .latex_preview import *

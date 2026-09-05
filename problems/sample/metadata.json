@@ -1,0 +1,16 @@
+{
+	"title": "A + B Problem",
+	"description": "Given two integers $A$ and $B$, your task is to calculate their sum.",
+	"input": "The input consists of a single line containing two space-separated integers $A$ and $B$.",
+	"output": "Print the sum of $A$ and $B$.",
+	"solution": "Print sum of two numbers - simple as it is.",
+	"constraints": "$0 \\le A, B \\le 10$",
+	"time_limit": "2.0",
+	"memory_limit": "256.0",
+	"grader": false,
+	"checker": false,
+	"subtasks": [
+		"sub1",
+		"sub2"
+	]
+}
